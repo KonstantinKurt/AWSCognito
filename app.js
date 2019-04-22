@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', cognitoRouter);
 
 app.listen(process.env.PORT, () => {
-    console.log(`Server runs on http://localhost:'  ${process.env.PORT}  '; Ctrl+C for exit `);
+    console.log(`Server runs on http://localhost:${process.env.PORT}; Ctrl+C for exit `);
 });
 
 
