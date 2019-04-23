@@ -63,7 +63,8 @@ module.exports = {
         });
     },
     testEnshureToken: async function(req,res) {
-        res.status(200).json({message: "personal area"});
+        console.log(`Users email!!!!!!!!!!!!!!!${req.user.email}`);
+        res.status(200).json({message: "personal area", data: req.user});
     },
 
 

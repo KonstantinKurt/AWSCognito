@@ -4,10 +4,10 @@ const jwt = require('jsonwebtoken');
 
 
 module.exports = function validateToken(req, res, next) {
-    if (!req.headers.signin) {
+    if (!req.headers.token) {
         return res.status(401).send({ error: 'TokenMissing' });
     }
-    const token = req.headers.signin;
+    const token = req.headers.token;
     request({
         url: `https://cognito-idp.${process.env.POOL_REGION}.amazonaws.com/${process.env.USER_POOL_ID}/.well-known/jwks.json`,
         json: true
@@ -47,7 +47,8 @@ module.exports = function validateToken(req, res, next) {
                     return res.status(401).json({message: "Token invalid"});
                 } else {
                     console.log("Valid Token.");
-                    console.log(payload);
+                    //console.log(payload);
+                    req.user = payload;
                     next();
                     //return res.status(200).json({message: "Valid token", data: payload});
                 }
