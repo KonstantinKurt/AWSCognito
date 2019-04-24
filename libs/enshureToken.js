@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
 module.exports = function validateToken(req, res, next) {
     if (!req.headers.token) {
-        return res.status(401).send({ error: 'TokenMissing' });
+        return res.status(401).send({ error: 'Token Missing' });
     }
     const token = req.headers.token;
     request({
