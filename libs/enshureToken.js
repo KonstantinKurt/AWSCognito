@@ -18,7 +18,6 @@ module.exports = function validateToken(req, res, next) {
             let keys = body['keys'];
 
             for (let i = 0; i < keys.length; i++) {
-                //Convert each key to PEM
                 let key_id = keys[i].kid;
                 let modulus = keys[i].n;
                 let exponent = keys[i].e;

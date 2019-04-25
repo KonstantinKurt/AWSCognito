@@ -22,7 +22,7 @@
 					"urlencoded": [
 						{
 							"key": "email",
-							"value": "olena.topchii@gmail.com",
+							"value": "",
 							"type": "text"
 						},
 						{
@@ -33,14 +33,14 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:4000/signIn",
+					"raw": "http://localhost:4000/signUp",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "4000",
 					"path": [
-						"signIn"
+						"signUp"
 					]
 				}
 			},

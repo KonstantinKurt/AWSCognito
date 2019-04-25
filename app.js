@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session');
 const app = express();
 require('dotenv').config();
 global.fetch = require(`node-fetch`);
@@ -17,4 +18,3 @@ app.listen(process.env.PORT, () => {
 });
 
 
-//Cognito has an internal data store in which user data is persisted. This can be viewed and edited (as an admin) through the 'Users' tab of your user pool.

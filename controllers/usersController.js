@@ -43,9 +43,6 @@ module.exports = {
     },
     decodeToken: async function (req, res) {
         const token = req.body.token;
-        //const jwkUrl = `https://cognito-idp.${process.env.POOL_REGION}.amazonaws.com/${process.env.USER_POOL_ID}/.well-known/jwks.json`;
-        //URL to get JWK object;
-        //https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_Tzavey1zu/.well-known/jwks.json
         const jwk = {
             "alg": "RS256",
             "e": "AQAB",
@@ -55,7 +52,6 @@ module.exports = {
             "use": "sig"
         };
         const pem = jwkToPem(jwk);
-        //console.log(pem);
         jwt.verify(token, pem, function (err, decoded) {
             if (err) console.log(err);
             console.log(decoded);
