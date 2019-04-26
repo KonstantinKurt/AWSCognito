@@ -3,7 +3,9 @@ const keyGen = require('../libs/keygen.js');
 
 module.exports = function check3DS(req, res, next) {
     const secureId = keyGen(10);
-    const encodedCredentials = Buffer.from(`merchant.${process.env.MERCHANT_ID}:${process.env.PASSWORD}`).toString('base64');
+    const merchantID = req.body.merchant.merchantID;
+    const merchantPassword = req.body.merchant.password;
+    const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
     let requestObj = {
         "apiOperation": "CHECK_3DS_ENROLLMENT",
         "order": {
@@ -18,10 +20,10 @@ module.exports = function check3DS(req, res, next) {
                             {
                                 "expiry":
                                     {
-                                        "month": '11', // card expiry;
-                                        "year": '20'
+                                        "month": req.body.month, // card expiry;
+                                        "year": req.body.year
                                     },
-                                "number": '5123456789012346' // card number;
+                                "number": req.body.number // card number;
                             }
                     },
             },
@@ -33,7 +35,7 @@ module.exports = function check3DS(req, res, next) {
         }
     };
     requestObj = JSON.stringify(requestObj);
-    const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${process.env.MERCHANT_ID}/3DSecureId/${secureId}`;
+    const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/3DSecureId/${secureId}`;
     const headers = {
         'Authorization': `Basic ${encodedCredentials}`,
         'Content-Type': 'application/json'
@@ -51,6 +53,10 @@ module.exports = function check3DS(req, res, next) {
     checkRequest
         .then(checkResult => {
             const data = JSON.parse(checkResult);
+            const secureId = data[`3DSecureId`];
+            console.log(`First middleware /////////  ${secureId}`);
+            secureId ? next() : res.status().json({"message": "There was a problem with 3DS Authentification", data: data});
+
         })
         .catch(err => {
             res.status(403).json('invalid requestObj');

@@ -42,7 +42,7 @@ module.exports = {
         // const {asd, ...others} = fields;
         // console.log(asd);
         // console.log(others);
-        // //console.log(fields);
+        //console.log(fields);
         const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
         const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/order/${orderID}/transaction/${transactionID}`;
         const headers = {
@@ -170,9 +170,10 @@ module.exports = {
         test
             .then(testres => {
                 const data = JSON.parse(testres);
-                data.message = requestURL;
-                res.status(202).json(data);
-
+                //data.message = requestURL;
+                //res.status(202).json(data);
+                const secureId = data[`3DSecureId`];
+                secureId ? next() : res.status(404).json({"message": "There was a problem with 3DS Authentification", data: data});
             })
             .catch(err => {
                 res.status(403).json('invalid requestObj');
