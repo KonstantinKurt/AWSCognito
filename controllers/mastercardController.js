@@ -3,8 +3,7 @@ const keyGen = require('../libs/keygen.js');
 
 module.exports = {
     payment: async function (req, res) {
-        console.log(`Users email!!!!!!!!!!!!!!!${req.user.email}`);
-        let requestObj = await {
+        let requestObj =  {
             "apiOperation": "PAY",
             "order":
                 {
@@ -37,13 +36,20 @@ module.exports = {
         requestObj = JSON.stringify(requestObj);
         const orderID = "order-" + keyGen(10);
         const transactionID = "trans-" + keyGen(10);
-        const encodedCredentials = Buffer.from(`merchant.${process.env.MERCHANT_ID}:${process.env.PASSWORD}`).toString('base64');
-        const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${process.env.MERCHANT_ID}/order/${orderID}/transaction/${transactionID}`;
+        const merchantID = req.body.merchant.merchantID;
+        const merchantPassword = req.body.merchant.password;
+        //let fields = { ...{"asd":"qwerty","qwe":"asd"} };
+        // const {asd, ...others} = fields;
+        // console.log(asd);
+        // console.log(others);
+        // //console.log(fields);
+        const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
+        const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/order/${orderID}/transaction/${transactionID}`;
         const headers = {
             'Authorization': `Basic ${encodedCredentials}`,
             'Content-Type': 'application/json'
         };
-        let test = new Promise((resolve, reject) => {
+        let payRequest = new Promise((resolve, reject) => {
             request.put({url: requestURL, form: requestObj, headers: headers},
                 (error, res, body) => {
                     if (error) {
@@ -53,24 +59,29 @@ module.exports = {
                     resolve(body);
                 })
         });
-        test
-            .then(testres => {
-                const data = JSON.parse(testres);
-                data.message = 'Successfully payload';
-                data.transactionId = transactionID;
-                data.orderID = orderID;
-                res.status(202).json(data);
-
+        payRequest
+            .then(payRequestres => {
+                const data = JSON.parse(payRequestres);
+                if(data.result === `SUCCESS`){
+                    data.message = 'Successfully payload';
+                    data.transactionId = transactionID;
+                    data.orderID = orderID;
+                    res.status(202).json(data);
+                }
+                data.message = 'Payload rejected';
+                res.status(400).json(data);
             })
             .catch(err => res.status(403).json('invalid data'));
 
     },
 
-    refund: async function (req, res) {
+    refund:  function (req, res) {
         const orderID = req.body.orderID;
         const transactionID = req.body.transactionId;
-        const encodedCredentials = Buffer.from(`merchant.${process.env.MERCHANT_ID}:${process.env.PASSWORD}`).toString('base64');
-        let requestObj = await {
+        const merchantID = req.body.merchant.merchantID;
+        const merchantPassword = req.body.merchant.password;
+        const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
+        let requestObj =  {
             "apiOperation": "REFUND",
             "transaction": {
                 "amount": req.body.amount,
@@ -78,12 +89,12 @@ module.exports = {
             }
         };
         requestObj = JSON.stringify(requestObj);
-        const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${process.env.MERCHANT_ID}/order/${orderID}/transaction/${transactionID}`;
+        const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/order/${orderID}/transaction/${transactionID}`;
         const headers = {
             'Authorization': `Basic ${encodedCredentials}`,
             'Content-Type': 'application/json'
         };
-        let test = new Promise((resolve, reject) => {
+        let refundRequest = new Promise((resolve, reject) => {
             request.put({url: requestURL, form: requestObj, headers: headers},
                 (error, res, body) => {
                     if (error) {
@@ -94,11 +105,17 @@ module.exports = {
                     resolve(body);
                 })
         });
-        test
-            .then(testres => {
-                let data = JSON.parse(testres);
-                //data.message = 'Successfully rejected';
-                res.status(202).json(data)
+        refundRequest
+            .then(refundRequestres => {
+                const data = JSON.parse(payRequestres);
+                if(data.result === `SUCCESS`){
+                    data.message = 'Successfully refund';
+                    data.transactionId = transactionID;
+                    data.orderID = orderID;
+                    res.status(202).json(data);
+                }
+                data.message = 'Refund rejected';
+                res.status(400).json(data);
             })
             .catch(err => res.status(403).json('invalid data', err));
     },
@@ -120,7 +137,7 @@ module.exports = {
                                     "expiry":
                                         {
                                             "month": '11', // card expiry;
-                                            "year": '20'
+                                            "year": '21'
                                         },
                                     "number": '5123456789012346' // card number;
                                 }

@@ -46,10 +46,8 @@ module.exports = function validateToken(req, res, next) {
                     return res.status(401).json({message: "Token invalid"});
                 } else {
                     console.log("Valid Token.");
-                    //console.log(payload);
                     req.user = payload;
                     next();
-                    //return res.status(200).json({message: "Valid token", data: payload});
                 }
             });
         } else {
