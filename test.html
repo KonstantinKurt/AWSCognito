@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Process Secure Payment</title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8">
+    <meta name="description" content="Process Secure Payment">
+    <meta name="robots" content="noindex">
+    <style type="text/css">body {
+        font-family: "Trebuchet MS", sans-serif;
+        background-color: #FFFFFF;
+    }
+
+    #msg {
+        border: 5px solid #666;
+        background-color: #fff;
+        margin: 20px;
+        padding: 25px;
+        max-width: 40em;
+        -webkit-border-radius: 10px;
+        -khtml-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+
+    #submitButton {
+        text-align: center;
+    }
+
+    #footnote {
+        font-size: 0.8em;
+    }</style>
+</head>
+<body onload="return window.document.echoForm.submit()">
+<form name="echoForm"
+      method="POST"
+      action="https://mtf.gateway.mastercard.com/acs/MastercardACS/8ceaf40a-ce2c-4e3a-a581-3208a9ed35d5"
+      accept-charset="UTF-8">
+
+    <input type="hidden"
+           name="PaReq"
+           value="eAFVUUtuwjAQ3SNxhyjrNo5NEpJqMIKiqlQqokDVtRsMBBEHnPDrxbrpnXqFjpNQWsuLefN98wa6p3RjHaTOk0x1bOq4tiVVnM0TtezYr7OH29Du8mYDZist5WAq472WHJ5lnoultJI51rjl84NWO6Q2h3FvIncc6p4cWzoMyAViqY5XQhUcRLzrD0fc91gYeUBqCKnUwwF/GfXzchhykWYABVJFQIlU8jeRiwJIaUOc7VWhzzwIcdIFwF5v+PF4dI4mdSvOTpylQIwXyJXFeG/45LjUKZlz9hRJf7FuqdGOqHVvocU7Y/pDHLJlB4jJgLkoJGcujVyPBRZ171r4kV3pB5EaLnzam1jfn18WvUHqjuvielUAtmZerwKVdED++gAV1niCyzYXBPK0zZTE3rjjrw3kyv/+0WgaF6ieT1nL84N2GLnGCoy6ZcB0SVApRilSrgEQU0rqw6E25XHR8+/ozcYPr3+1LQ==">
+
+    <input type="hidden"
+           name="TermUrl"
+           value="http://www.google.ua">
+
+    <input type="hidden" name="MD" value="">
+
+    <noscript>
+        <div id="msg">
+            <div id="submitButton">
+                <input type="submit" value="Click here to continue" class="button">
+            </div>
+        </div>
+    </noscript>
+</form>
+</body></html>

@@ -171,9 +171,11 @@ module.exports = {
             .then(testres => {
                 const data = JSON.parse(testres);
                 //data.message = requestURL;
-                //res.status(202).json(data);
-                const secureId = data[`3DSecureId`];
-                secureId ? next() : res.status(404).json({"message": "There was a problem with 3DS Authentification", data: data});
+
+                const veResEnrolledResult = data[`3DSecure`].veResEnrolled;
+                const responseHTML = data[`3DSecure`];
+                console.log(responseHTML);
+                res.status(202).json(responseHTML);
             })
             .catch(err => {
                 res.status(403).json('invalid requestObj');

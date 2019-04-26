@@ -29,7 +29,7 @@ module.exports = function check3DS(req, res, next) {
             },
         "3DSecure": {
             "authenticationRedirect": {
-                "responseUrl": "http://www.google.ua",
+                "responseUrl": "",
                 "pageGenerationMode": "SIMPLE"
             }
         }
@@ -53,10 +53,16 @@ module.exports = function check3DS(req, res, next) {
     checkRequest
         .then(checkResult => {
             const data = JSON.parse(checkResult);
-            const secureId = data[`3DSecureId`];
-            console.log(`First middleware /////////  ${secureId}`);
-            secureId ? next() : res.status().json({"message": "There was a problem with 3DS Authentification", data: data});
+            const veResEnrolledResult = data[`3DSecure`].veResEnrolled;
+            if(veResEnrolledResult == `Y`){
+                console.log(`First middleware /////////  ${veResEnrolledResult}`);
 
+                res.status(200).json({"message": "Redirect", data: data});
+                next();
+            }
+            else{
+                res.status(404).json({"message": "There was a problem with 3DS Authentification", data: data});
+            }
         })
         .catch(err => {
             res.status(403).json('invalid requestObj');
