@@ -190,51 +190,95 @@ module.exports = {
                 console.log(err);
             });
         },
-    refund:  function (req, res) {
-        const orderID = req.body.orderID;
-        const transactionID = req.body.transactionId;
+    refund: async function (req, res) {
         const merchantID = req.body.merchant.merchantID;
         const merchantPassword = req.body.merchant.password;
         const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
-        let requestObj =  {
-            "apiOperation": "REFUND",
-            "transaction": {
-                "amount": req.body.amount,
-                "currency": process.env.CURRENCY_LABEL
+        const secureId = req.body.secureId;
+        const pares = req.body.PaRes;
+        let requestObj = {
+            "apiOperation": "PROCESS_ACS_RESULT",
+            "3DSecure": {
+                "paRes": pares
             }
         };
         requestObj = JSON.stringify(requestObj);
-        const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/order/${orderID}/transaction/${transactionID}`;
+        const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/3DSecureId/${secureId}`;
         const headers = {
             'Authorization': `Basic ${encodedCredentials}`,
             'Content-Type': 'application/json'
         };
-        let refundRequest = new Promise((resolve, reject) => {
-            request.put({url: requestURL, form: requestObj, headers: headers},
+        //res.status(200).json(requestURL);
+        let processACS = new Promise((resolve, reject) => {
+            request.post({url: requestURL, form: requestObj, headers: headers},
                 (error, res, body) => {
                     if (error) {
+                        console.log(error);
                         reject(error);
                         return
                     }
-
                     resolve(body);
                 })
         });
-        refundRequest
-            .then(refundRequestres => {
-                const data = JSON.parse(refundRequestres);
-                if(data.result === `SUCCESS`){
-                    data.message = 'Successfully refund';
-                    data.transactionId = transactionID;
-                    data.orderID = orderID;
-                    res.status(202).json(data);
+        processACS
+            .then(checkRequestResult => {
+                const data = JSON.parse(checkRequestResult);
+                if(!data.error) {
+                    const orderID = req.body.orderID;
+                    const transactionID = req.body.transactionId;
+                    const merchantID = req.body.merchant.merchantID;
+                    const merchantPassword = req.body.merchant.password;
+                    const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
+                    let requestObj =  {
+                        "apiOperation": "REFUND",
+                        "transaction": {
+                            "amount": req.body.amount,
+                            "currency": process.env.CURRENCY_LABEL
+                        }
+                    };
+                    requestObj = JSON.stringify(requestObj);
+                    const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/order/${orderID}/transaction/${transactionID}`;
+                    const headers = {
+                        'Authorization': `Basic ${encodedCredentials}`,
+                        'Content-Type': 'application/json'
+                    };
+                    let refundRequest = new Promise((resolve, reject) => {
+                        request.put({url: requestURL, form: requestObj, headers: headers},
+                            (error, res, body) => {
+                                if (error) {
+                                    reject(error);
+                                    return
+                                }
+
+                                resolve(body);
+                            })
+                    });
+                    refundRequest
+                        .then(refundRequestres => {
+                            const data = JSON.parse(refundRequestres);
+                            if(data.result === `SUCCESS`){
+                                data.message = 'Successfully refund';
+                                data.transactionId = transactionID;
+                                data.orderID = orderID;
+                                res.status(202).json(data);
+                            }
+                            else {
+                                data.message = 'Refund rejected';
+                                res.status(400).json(data);
+                            }
+                        })
+                        .catch(err => res.status(403).json({'invalid data': err}));
+
+
                 }
-                else {
-                    data.message = 'Refund rejected';
-                    res.status(400).json(data);
+                else{
+                    res.status(400).json({data});
                 }
             })
-            .catch(err => res.status(403).json({'invalid data': err}));
+            .catch(err => {
+                res.status(403).json('invalid requestObj');
+                console.log(err);
+            });
     },
     authorization: async function (req, res) {
         const merchantID = req.body.merchant.merchantID;

@@ -154,41 +154,6 @@
 			"response": []
 		},
 		{
-			"name": "payment",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "token",
-						"value": "eyJraWQiOiJWblwvVlVoS1VrcGk4MFoxb0Z5UlNxRXNqNEdwM3RBb2ljWWdmNnF0UHU0az0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZDNiZjE1OC02N2RlLTRhYWYtYWVlZC0zZmY0Y2QwMTY2ZmEiLCJhdWQiOiIxNWRiMDF1YW9tb2VpbjU3NmN0c2xmZ3ZtcCIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJldmVudF9pZCI6IjRjZjZmY2ZiLTY4MDktMTFlOS1iZThhLTg1ZWQ1ZWU0ZjQ0YSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNTU2MjcyNDc2LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtY2VudHJhbC0xLmFtYXpvbmF3cy5jb21cL2V1LWNlbnRyYWwtMV9UemF2ZXkxenUiLCJjb2duaXRvOnVzZXJuYW1lIjoiYWQzYmYxNTgtNjdkZS00YWFmLWFlZWQtM2ZmNGNkMDE2NmZhIiwiZXhwIjoxNTU2Mjc2MDc2LCJpYXQiOjE1NTYyNzI0NzYsImVtYWlsIjoia3VyYmF0c2t5a3ZAZ21haWwuY29tIn0.I7ONLSOvMM1R6pNBeGQYZ2wY6nmy468P_XcsU3BNwMc7Gyk2n5NHAfMnU97KfKLAu3F8j59bq0Def9PY4fPwpKmZg-TmW_NvRJXHxsEfnzEfnz0ONNP_PJZWJqaA_ktY5uwHmerMgQBFTRdrHHstHSz7mOW_YtEFaKNh9AsObIHGMJ0arneA2h3xzS95LgdzaJFbOUWdgoz1M8j-DefYA2yNQtxP2u867R81U50hHcXxkZtj0cfK58nKC8KFtYf7GknRNUsfFZBvGlbvMOsrOKcmU2dsY8tN7ACj66TRAKBob356O0Gma0FPsbMzsZm0FdsrX3mbbSzarMifOVq4gQ",
-						"type": "text"
-					},
-					{
-						"key": "Content-Type",
-						"name": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n \"number\": \"5123456789012346\",\n \"month\":\"05\",\n \"year\":\"21\",\n \"code\":\"123\",\n \"amount\":\"1000\",\n \"merchant\":{\n \t\"merchantID\":\"WASATTEST\",\n \t\"password\":\"db06d2afdfb9a8ab17ad180db26bf310\"\n }\n}"
-				},
-				"url": {
-					"raw": "http://localhost:4000/payment",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "4000",
-					"path": [
-						"payment"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "refund",
 			"request": {
 				"method": "PUT",
@@ -232,11 +197,14 @@
 					{
 						"key": "Content-Type",
 						"name": "Content-Type",
-						"value": "application/x-www-form-urlencoded",
+						"value": "application/json",
 						"type": "text"
 					}
 				],
-				"body": {},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"number\": \"5123456789012346\",\n \"month\":\"05\",\n \"year\":\"21\",\n \"code\":\"123\",\n \"amount\":\"1000\",\n \"responseUrl\": \"http://localhost:4000\",\n \"merchant\":{\n \t\"merchantID\":\"WASATTEST\",\n \t\"password\":\"db06d2afdfb9a8ab17ad180db26bf310\"\n }\n}"
+				},
 				"url": {
 					"raw": "http://localhost:4000/check3DS",
 					"protocol": "http",
@@ -252,27 +220,124 @@
 			"response": []
 		},
 		{
-			"name": "html",
+			"name": "payment3DS",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \n\n}"
+					"raw": "{\n \"number\": \"5123456789012346\",\n \"month\":\"05\",\n \"year\":\"21\",\n \"code\":\"123\",\n \"amount\":\"1000\",\n \"secureId\": \"tKlyNCfSQu\",\n \"PaRes\":\"eAFVUUtuwjAQ3SNxhyjrNo5NEpJqMIKiqlQqokDVtRsMBBEHnPDrxbrpnXqFjpNQWsuLefN98wa6p3RjHaTOk0x1bOq4tiVVnM0TtezYr7OH29Du8mYDZist5WAq472WHJ5lnoultJI51rjl84NWO6Q2h3FvIncc6p4cWzoMyAViqY5XQhUcRLzrD0fc91gYeUBqCKnUwwF/GfXzchhykWYABVJFQIlU8jeRiwJIaUOc7VWhzzwIcdIFwF5v+PF4dI4mdSvOTpylQIwXyJXFeG/45LjUKZlz9hRJf7FuqdGOqHVvocU7Y/pDHLJlB4jJgLkoJGcujVyPBRZ171r4kV3pB5EaLnzam1jfn18WvUHqjuvielUAtmZerwKVdED++gAV1niCyzYXBPK0zZTE3rjjrw3kyv/+0WgaF6ieT1nL84N2GLnGCoy6ZcB0SVApRilSrgEQU0rqw6E25XHR8+/ozcYPr3+1LQ==\",\n \"responseUrl\": \"http://localhost:4000\",\n \"merchant\":{\n \t\"merchantID\":\"WASATTEST\",\n \t\"password\":\"db06d2afdfb9a8ab17ad180db26bf310\"\n }\n}"
 				},
 				"url": {
-					"raw": "https://mtf.gateway.mastercard.com/acs/MastercardACS/8ceaf40a-ce2c-4e3a-a581-3208a9ed35d5",
-					"protocol": "https",
+					"raw": "http://localhost:4000/payment3DS",
+					"protocol": "http",
 					"host": [
-						"mtf",
-						"gateway",
-						"mastercard",
-						"com"
+						"localhost"
 					],
+					"port": "4000",
 					"path": [
-						"acs",
-						"MastercardACS",
-						"8ceaf40a-ce2c-4e3a-a581-3208a9ed35d5"
+						"payment3DS"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "authorization",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"number\": \"5123456789012346\",\n \"month\":\"05\",\n \"year\":\"21\",\n \"code\":\"123\",\n \"amount\":\"1000\",\n \"secureId\": \"tKlyNCfSQu\",\n \"PaRes\":\"eAFVUUtuwjAQ3SNxhyjrNo5NEpJqMIKiqlQqokDVtRsMBBEHnPDrxbrpnXqFjpNQWsuLefN98wa6p3RjHaTOk0x1bOq4tiVVnM0TtezYr7OH29Du8mYDZist5WAq472WHJ5lnoultJI51rjl84NWO6Q2h3FvIncc6p4cWzoMyAViqY5XQhUcRLzrD0fc91gYeUBqCKnUwwF/GfXzchhykWYABVJFQIlU8jeRiwJIaUOc7VWhzzwIcdIFwF5v+PF4dI4mdSvOTpylQIwXyJXFeG/45LjUKZlz9hRJf7FuqdGOqHVvocU7Y/pDHLJlB4jJgLkoJGcujVyPBRZ171r4kV3pB5EaLnzam1jfn18WvUHqjuvielUAtmZerwKVdED++gAV1niCyzYXBPK0zZTE3rjjrw3kyv/+0WgaF6ieT1nL84N2GLnGCoy6ZcB0SVApRilSrgEQU0rqw6E25XHR8+/ozcYPr3+1LQ==\",\n \"responseUrl\": \"http://localhost:4000\",\n \"merchant\":{\n \t\"merchantID\":\"WASATTEST\",\n \t\"password\":\"db06d2afdfb9a8ab17ad180db26bf310\"\n }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:4000/check3DS/authorization",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"check3DS",
+						"authorization"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "capture",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"number\": \"5123456789012346\",\n \"month\":\"05\",\n \"year\":\"21\",\n \"code\":\"123\",\n \"amount\":\"1000\",\n \"secureId\": \"tKlyNCfSQu\",\n \"orderID\":\"order-d5NFhBXdeC\",\n \"PaRes\":\"eAFVUUtuwjAQ3SNxhyjrNo5NEpJqMIKiqlQqokDVtRsMBBEHnPDrxbrpnXqFjpNQWsuLefN98wa6p3RjHaTOk0x1bOq4tiVVnM0TtezYr7OH29Du8mYDZist5WAq472WHJ5lnoultJI51rjl84NWO6Q2h3FvIncc6p4cWzoMyAViqY5XQhUcRLzrD0fc91gYeUBqCKnUwwF/GfXzchhykWYABVJFQIlU8jeRiwJIaUOc7VWhzzwIcdIFwF5v+PF4dI4mdSvOTpylQIwXyJXFeG/45LjUKZlz9hRJf7FuqdGOqHVvocU7Y/pDHLJlB4jJgLkoJGcujVyPBRZ171r4kV3pB5EaLnzam1jfn18WvUHqjuvielUAtmZerwKVdED++gAV1niCyzYXBPK0zZTE3rjjrw3kyv/+0WgaF6ieT1nL84N2GLnGCoy6ZcB0SVApRilSrgEQU0rqw6E25XHR8+/ozcYPr3+1LQ==\",\n \"responseUrl\": \"http://localhost:4000\",\n \"merchant\":{\n \t\"merchantID\":\"WASATTEST\",\n \t\"password\":\"db06d2afdfb9a8ab17ad180db26bf310\"\n }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:4000/check3DS/authorization/capture",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"check3DS",
+						"authorization",
+						"capture"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "void",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"number\": \"5123456789012346\",\n \"month\":\"05\",\n \"year\":\"21\",\n \"code\":\"123\",\n \"amount\":\"1000\",\n \"secureId\": \"tKlyNCfSQu\",\n \"orderID\":\"order-4zefo97KM\",\n \"targetTransactionId\":\"trans-zvBEDHgcbb\",\n \"PaRes\":\"eAFVUUtuwjAQ3SNxhyjrNo5NEpJqMIKiqlQqokDVtRsMBBEHnPDrxbrpnXqFjpNQWsuLefN98wa6p3RjHaTOk0x1bOq4tiVVnM0TtezYr7OH29Du8mYDZist5WAq472WHJ5lnoultJI51rjl84NWO6Q2h3FvIncc6p4cWzoMyAViqY5XQhUcRLzrD0fc91gYeUBqCKnUwwF/GfXzchhykWYABVJFQIlU8jeRiwJIaUOc7VWhzzwIcdIFwF5v+PF4dI4mdSvOTpylQIwXyJXFeG/45LjUKZlz9hRJf7FuqdGOqHVvocU7Y/pDHLJlB4jJgLkoJGcujVyPBRZ171r4kV3pB5EaLnzam1jfn18WvUHqjuvielUAtmZerwKVdED++gAV1niCyzYXBPK0zZTE3rjjrw3kyv/+0WgaF6ieT1nL84N2GLnGCoy6ZcB0SVApRilSrgEQU0rqw6E25XHR8+/ozcYPr3+1LQ==\",\n \"responseUrl\": \"http://localhost:4000\",\n \"merchant\":{\n \t\"merchantID\":\"WASATTEST\",\n \t\"password\":\"db06d2afdfb9a8ab17ad180db26bf310\"\n }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:4000/check3DS/void",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"check3DS",
+						"void"
 					]
 				}
 			},
