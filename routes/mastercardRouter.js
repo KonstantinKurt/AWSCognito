@@ -5,14 +5,11 @@ const mastercardController = require('../controllers/mastercardController.js');
 const enshureToken = require('../libs/enshureToken.js');
 const check3DS = require('../libs/check3dsEnrollment.js');
 
-//router.put('/payment',enshureToken, mastercardController.payment);  //A single transaction to authorise the payment and transfer funds from the payer's account to your account.
-router.put('/payment/refund',enshureToken, mastercardController.refund); //Request to refund previously captured funds to the payer.
-router.put('/payment',enshureToken,check3DS,mastercardController.payment);
 
+router.put('/check3DS', mastercardController.check3DS); // Check users enrollment;
+router.post('/check3DS/pay', mastercardController.payment3ds); //A single transaction to authorise the pay with 3DS check;
+router.put('/check3DS/pay/refund', mastercardController.refund); //Request to refund previously captured funds to the payer.
 
-
-//dev routes
-router.put('/check3DS', mastercardController.check3DS);
 
 module.exports = router;
 
