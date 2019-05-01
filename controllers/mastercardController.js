@@ -81,7 +81,7 @@ module.exports = {
                 console.log(err);
             });
     },
-    payment3ds: async function (req, res) {
+    pay: async function (req, res) {
         const merchantID = req.body.merchant.merchantID;
         const merchantPassword = req.body.merchant.password;
         const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
@@ -148,8 +148,6 @@ module.exports = {
                     requestObj = JSON.stringify(requestObj);
                     const orderID = "order-" + keyGen(10);
                     const transactionID = "trans-" + keyGen(10);
-                    const merchantID = req.body.merchant.merchantID;
-                    const merchantPassword = req.body.merchant.password;
                     const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
                     const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/order/${orderID}/transaction/${transactionID}`;
                     const headers = {
@@ -238,8 +236,278 @@ module.exports = {
             })
             .catch(err => res.status(403).json({'invalid data': err}));
     },
-    test:  function (req, res) {
+    authorization: async function (req, res) {
+        const merchantID = req.body.merchant.merchantID;
+        const merchantPassword = req.body.merchant.password;
+        const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
+        const secureId = req.body.secureId;
+        const pares = req.body.PaRes;
+        let requestObj = {
+            "apiOperation": "PROCESS_ACS_RESULT",
+            "3DSecure": {
+                "paRes": pares
+            }
+        };
+        requestObj = JSON.stringify(requestObj);
+        const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/3DSecureId/${secureId}`;
+        const headers = {
+            'Authorization': `Basic ${encodedCredentials}`,
+            'Content-Type': 'application/json'
+        };
+        //res.status(200).json(requestURL);
+        let processACS = new Promise((resolve, reject) => {
+            request.post({url: requestURL, form: requestObj, headers: headers},
+                (error, res, body) => {
+                    if (error) {
+                        console.log(error);
+                        reject(error);
+                        return
+                    }
+                    resolve(body);
+                })
+        });
+        processACS
+            .then(checkRequestResult => {
+                const data = JSON.parse(checkRequestResult);
+                if(!data.error) {
+                    let requestObj =  {
+                        "apiOperation": "AUTHORIZE",
+                        "order":
+                            {
+                                "currency": process.env.CURRENCY_LABEL,
+                                "amount": req.body.amount,
+                            },
+                        "sourceOfFunds":
+                            {
+                                "provided":
+                                    {
+                                        "card":
+                                            {
+                                                "expiry":
+                                                    {
+                                                        "month": req.body.month, // card expiry;
+                                                        "year": req.body.year
+                                                    },
+                                                "securityCode": req.body.code, // card cvv code;
+                                                "number": req.body.number // card number;
+                                            }
+                                    },
+                                "type": "CARD"
+                            }
+                    };
+                    requestObj = JSON.stringify(requestObj);
+                    const orderID = "order-" + keyGen(10);
+                    const transactionID = "trans-" + keyGen(10);
+                    const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
+                    const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/order/${orderID}/transaction/${transactionID}`;
+                    const headers = {
+                        'Authorization': `Basic ${encodedCredentials}`,
+                        'Content-Type': 'application/json'
+                    };
+                    let payRequest = new Promise((resolve, reject) => {
+                        request.put({url: requestURL, form: requestObj, headers: headers},
+                            (error, res, body) => {
+                                if (error) {
+                                    reject(error);
+                                    return
+                                }
+                                resolve(body);
+                            })
+                    });
+                    payRequest
+                        .then(payRequestres => {
+                            const data = JSON.parse(payRequestres);
+                            if(data.result === `SUCCESS`){
+                                data.transactionId = transactionID;
+                                data.orderID = orderID;
+                                res.status(202).json(data);
+                            }
+                            else{
+                                res.status(400).json(data);
+                            }
+                        })
+                        .catch(err => res.status(403).json('invalid data'));
 
+                }
+                else{
+                    res.status(400).json({data});
+                }
+            })
+            .catch(err => {
+                res.status(403).json('invalid requestObj');
+                console.log(err);
+            });
     },
+    capture: async function (req, res) {
+        const merchantID = req.body.merchant.merchantID;
+        const merchantPassword = req.body.merchant.password;
+        const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
+        const secureId = req.body.secureId;
+        const pares = req.body.PaRes;
+        let requestObj = {
+            "apiOperation": "PROCESS_ACS_RESULT",
+            "3DSecure": {
+                "paRes": pares
+            }
+        };
+        requestObj = JSON.stringify(requestObj);
+        const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/3DSecureId/${secureId}`;
+        const headers = {
+            'Authorization': `Basic ${encodedCredentials}`,
+            'Content-Type': 'application/json'
+        };
+        //res.status(200).json(requestURL);
+        let processACS = new Promise((resolve, reject) => {
+            request.post({url: requestURL, form: requestObj, headers: headers},
+                (error, res, body) => {
+                    if (error) {
+                        console.log(error);
+                        reject(error);
+                        return
+                    }
+                    resolve(body);
+                })
+        });
+        processACS
+            .then(checkRequestResult => {
+                const data = JSON.parse(checkRequestResult);
+                if(!data.error) {
+                    let requestObj =  {
+                        "apiOperation": "CAPTURE",
+                        "transaction":
+                            {
+                                "currency": process.env.CURRENCY_LABEL,
+                                "amount": req.body.amount,
+                            },
 
+                    };
+                    requestObj = JSON.stringify(requestObj);
+                    const orderID = req.body.orderID;
+                    const transactionID = "trans-" + keyGen(10);
+                    const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
+                    const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/order/${orderID}/transaction/${transactionID}`;
+                    const headers = {
+                        'Authorization': `Basic ${encodedCredentials}`,
+                        'Content-Type': 'application/json'
+                    };
+                    let payRequest = new Promise((resolve, reject) => {
+                        request.put({url: requestURL, form: requestObj, headers: headers},
+                            (error, res, body) => {
+                                if (error) {
+                                    reject(error);
+                                    return
+                                }
+                                resolve(body);
+                            })
+                    });
+                    payRequest
+                        .then(payRequestres => {
+                            const data = JSON.parse(payRequestres);
+                            if(data.result === `SUCCESS`){
+                                data.transactionId = transactionID;
+                                data.orderID = orderID;
+                                res.status(202).json(data);
+                            }
+                            else{
+                                res.status(400).json(data);
+                            }
+                        })
+                        .catch(err => res.status(403).json('invalid data'));
+
+                }
+                else{
+                    res.status(400).json({data});
+                }
+            })
+            .catch(err => {
+                res.status(403).json('invalid requestObj');
+                console.log(err);
+            });
+    },
+    void: async function (req, res) {
+        const merchantID = req.body.merchant.merchantID;
+        const merchantPassword = req.body.merchant.password;
+        const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
+        const secureId = req.body.secureId;
+        const pares = req.body.PaRes;
+        let requestObj = {
+            "apiOperation": "PROCESS_ACS_RESULT",
+            "3DSecure": {
+                "paRes": pares
+            }
+        };
+        requestObj = JSON.stringify(requestObj);
+        const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/3DSecureId/${secureId}`;
+        const headers = {
+            'Authorization': `Basic ${encodedCredentials}`,
+            'Content-Type': 'application/json'
+        };
+        //res.status(200).json(requestURL);
+        let processACS = new Promise((resolve, reject) => {
+            request.post({url: requestURL, form: requestObj, headers: headers},
+                (error, res, body) => {
+                    if (error) {
+                        console.log(error);
+                        reject(error);
+                        return
+                    }
+                    resolve(body);
+                })
+        });
+        processACS
+            .then(checkRequestResult => {
+                const data = JSON.parse(checkRequestResult);
+                const targetTransactionId = req.body.targetTransactionId;
+                if(!data.error) {
+                    let requestObj =  {
+                        "apiOperation": "VOID",
+                        "transaction":
+                            {
+                                "targetTransactionId": targetTransactionId
+                            },
+
+                    };
+                    requestObj = JSON.stringify(requestObj);
+                    const orderID = req.body.orderID;
+                    const transactionID = "trans-" + keyGen(10);
+                    const encodedCredentials = Buffer.from(`merchant.${merchantID}:${merchantPassword}`).toString('base64');
+                    const requestURL = `https://test-gateway.mastercard.com/api/rest/version/51/merchant/${merchantID}/order/${orderID}/transaction/${transactionID}`;
+                    const headers = {
+                        'Authorization': `Basic ${encodedCredentials}`,
+                        'Content-Type': 'application/json'
+                    };
+                    let payRequest = new Promise((resolve, reject) => {
+                        request.put({url: requestURL, form: requestObj, headers: headers},
+                            (error, res, body) => {
+                                if (error) {
+                                    reject(error);
+                                    return
+                                }
+                                resolve(body);
+                            })
+                    });
+                    payRequest
+                        .then(payRequestres => {
+                            const data = JSON.parse(payRequestres);
+                            if(data.result === `SUCCESS`){
+                                data.transactionId = transactionID;
+                                data.orderID = orderID;
+                                res.status(202).json(data);
+                            }
+                            else{
+                                res.status(400).json(data);
+                            }
+                        })
+                        .catch(err => res.status(403).json('invalid data'));
+
+                }
+                else{
+                    res.status(400).json({data});
+                }
+            })
+            .catch(err => {
+                res.status(403).json('invalid requestObj');
+                console.log(err);
+            });
+    },
 };
